@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/tidwall/gjson"
 	"github.com/yasir7ca/sui-go-sdk/models"
 )
 
@@ -91,7 +92,7 @@ func (h *HttpConn) CallContext(ctx context.Context, result interface{}, op Opera
 	if len(respMsg.Result) == 0 {
 		return ErrNoResult
 	}
-	return json.Unmarshal(respMsg.Result, &result)
+	return json.Unmarshal([]byte(gjson.ParseBytes(respMsg.Result).String()), &result)
 }
 
 func (h *HttpConn) newMessage(method string, paramsIn ...interface{}) (*models.JsonRPCMessage, error) {

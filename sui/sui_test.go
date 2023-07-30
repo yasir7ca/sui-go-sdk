@@ -14,7 +14,7 @@ import (
 )
 
 var ctx = context.Background()
-var cli = NewSuiClient(constant.BvMainnetEndpoint)
+var cli = NewSuiClient(constant.SuiPublicTestnet)
 
 func TestOnReadSystemFromSui(t *testing.T) {
 	t.Run("test on sui_getCheckpoint", func(t *testing.T) {

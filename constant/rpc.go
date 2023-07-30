@@ -10,4 +10,6 @@ const (
 	WssBvMainnetEndpoint  = "wss://sui-mainnet-endpoint.blockvision.org/websocket"
 	WssSuiTestnetEndpoint = "wss://fullnode.testnet.sui.io"
 	WssSuiMainnetEndpoint = "wss://fullnode.mainnet.sui.io"
+
+	SuiPublicTestnet = "https://fullnode.testnet.sui.io:443"
 )
