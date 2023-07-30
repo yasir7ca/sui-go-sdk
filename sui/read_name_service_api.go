@@ -2,10 +2,8 @@ package sui
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
-	"github.com/tidwall/gjson"
 	"github.com/yasir7ca/sui-go-sdk/common/httpconn"
 	"github.com/yasir7ca/sui-go-sdk/models"
 )
@@ -21,26 +19,13 @@ type suiReadNameServiceFromSuiImpl struct {
 
 // SuiXResolveNameServiceAddress implements the method `suix_resolveNameServiceAddress`, get the resolved address given resolver and name.
 func (s *suiReadNameServiceFromSuiImpl) SuiXResolveNameServiceAddress(ctx context.Context, req models.SuiXResolveNameServiceAddressRequest) (string, error) {
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
-		Method: "suix_resolveNameServiceAddress",
-		Params: []interface{}{
-			req.Name,
-		},
-	})
-	if err != nil {
-		return "", err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return "", errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-
-	return gjson.ParseBytes(respBytes).Get("result").String(), nil
+	return "", errors.New("not implemented")
 }
 
 // SuiXResolveNameServiceNames implements the method `suix_resolveNameServiceNames`, return the resolved names given address, if multiple names are resolved, the first one is the primary name.
 func (s *suiReadNameServiceFromSuiImpl) SuiXResolveNameServiceNames(ctx context.Context, req models.SuiXResolveNameServiceNamesRequest) (models.SuiXResolveNameServiceNamesResponse, error) {
 	var rsp models.SuiXResolveNameServiceNamesResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_resolveNameServiceNames",
 		Params: []interface{}{
 			req.Address,
@@ -48,13 +33,6 @@ func (s *suiReadNameServiceFromSuiImpl) SuiXResolveNameServiceNames(ctx context.
 			req.Limit,
 		},
 	})
-	if err != nil {
-		return rsp, err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
 	if err != nil {
 		return rsp, err
 	}

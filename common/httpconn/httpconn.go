@@ -4,78 +4,144 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"errors"
+	"fmt"
+	"io"
 	"net/http"
+	"reflect"
+	"strconv"
+	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/yasir7ca/sui-go-sdk/models"
-	"golang.org/x/time/rate"
 )
 
-const defaultTimeout = time.Second * 20
+type HTTPError struct {
+	StatusCode int
+	Status     string
+	Body       []byte
+}
+
+func (err HTTPError) Error() string {
+	if len(err.Body) == 0 {
+		return err.Status
+	}
+	return fmt.Sprintf("%v: %s", err.Status, err.Body)
+}
+
+const (
+	vsn = "2.0"
+)
+
+var (
+	ErrNoResult = errors.New("no result in JSON-RPC response")
+)
 
 type HttpConn struct {
-	c       *http.Client
-	rl      *rate.Limiter
-	rpcUrl  string
-	timeout time.Duration
+	idCounter uint32
+	rpcUrl    string
+	client    *http.Client
 }
 
-func newDefaultRateLimiter() *rate.Limiter {
-	rateLimiter := rate.NewLimiter(rate.Every(1*time.Second), 10000) // 10000 request every 1 seconds
-	return rateLimiter
+func Dial(rpcUrl string) (client *HttpConn, err error) {
+	hc := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:    3,
+			IdleConnTimeout: 30 * time.Second,
+		},
+		Timeout: 30 * time.Second,
+	}
+	return DialWithClient(rpcUrl, hc)
 }
 
-func NewHttpConn(rpcUrl string) *HttpConn {
-	return &HttpConn{
-		c: &http.Client{},
-		// rl:      newDefaultRateLimiter(),
-		rpcUrl:  rpcUrl,
-		timeout: defaultTimeout,
+func DialWithClient(rpcUrl string, c *http.Client) (client *HttpConn, err error) {
+	client = &HttpConn{
+		rpcUrl: strings.TrimRight(rpcUrl, "/"),
+		client: c,
 	}
+	return
 }
 
-func NewCustomHttpConn(rpcUrl string, cli *http.Client) *HttpConn {
-	return &HttpConn{
-		c: cli,
-		// rl:      newDefaultRateLimiter(),
-		rpcUrl:  rpcUrl,
-		timeout: defaultTimeout,
+// CallContext performs a JSON-RPC call with the given arguments. If the context is
+// canceled before the call has successfully returned, CallContext returns immediately.
+//
+// The result must be a pointer so that package json can unmarshal into it. You
+// can also pass nil, in which case the result is ignored.
+func (h *HttpConn) CallContext(ctx context.Context, result interface{}, op Operation) error {
+	if result != nil && reflect.TypeOf(result).Kind() != reflect.Ptr {
+		return fmt.Errorf("call result parameter must be pointer or nil interface: %v", result)
 	}
+	msg, err := h.newMessage(op.Method, op.Params)
+	if err != nil {
+		return err
+	}
+	respBody, err := h.doRequest(ctx, msg)
+	if err != nil {
+		return err
+	}
+	defer respBody.Close()
+
+	var respMsg models.JsonRPCMessage
+	if err := json.NewDecoder(respBody).Decode(&respMsg); err != nil {
+		return err
+	}
+	if respMsg.Error != nil {
+		return respMsg.Error
+	}
+	if len(respMsg.Result) == 0 {
+		return ErrNoResult
+	}
+	return json.Unmarshal(respMsg.Result, &result)
 }
 
-func (h *HttpConn) Request(ctx context.Context, op Operation) ([]byte, error) {
-	jsonRPCReq := models.JsonRPCRequest{
-		JsonRPC: "2.0",
-		ID:      time.Now().UnixMilli(),
-		Method:  op.Method,
-		Params:  op.Params,
+func (h *HttpConn) newMessage(method string, paramsIn ...interface{}) (*models.JsonRPCMessage, error) {
+	msg := &models.JsonRPCMessage{Version: vsn, ID: h.nextID(), Method: method}
+	if paramsIn != nil { // prevent sending "params":null
+		var err error
+		if msg.Params, err = json.Marshal(paramsIn); err != nil {
+			return nil, err
+		}
 	}
-	reqBytes, err := json.Marshal(jsonRPCReq)
-	if err != nil {
-		return []byte{}, err
-	}
+	return msg, nil
+}
 
-	// err = h.rl.Wait(ctx) // This is a blocking call. Honors the rate limit.
-	// if err != nil {
-	// 	return nil, err
-	// }
+func (h *HttpConn) doRequest(ctx context.Context, msg interface{}) (io.ReadCloser, error) {
+	body, err := json.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, h.rpcUrl, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.ContentLength = int64(len(body))
+	req.GetBody = func() (io.ReadCloser, error) { return io.NopCloser(bytes.NewReader(body)), nil }
 
-	request, err := http.NewRequest("POST", h.rpcUrl, bytes.NewBuffer(reqBytes))
-	if err != nil {
-		return []byte{}, err
-	}
-	request = request.WithContext(ctx)
-	request.Header.Add("Content-Type", "application/json")
-	rsp, err := h.c.Do(request.WithContext(ctx))
-	if err != nil {
-		return []byte{}, err
-	}
-	defer rsp.Body.Close()
+	req.Header.Set("Content-Type", "application/json")
 
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	// do request
+	resp, err := h.client.Do(req)
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
-	return bodyBytes, nil
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		var buf bytes.Buffer
+		var body []byte
+		if _, err := buf.ReadFrom(resp.Body); err == nil {
+			body = buf.Bytes()
+		}
+
+		return nil, HTTPError{
+			Status:     resp.Status,
+			StatusCode: resp.StatusCode,
+			Body:       body,
+		}
+	}
+	return resp.Body, nil
+}
+
+func (h *HttpConn) nextID() json.RawMessage {
+	id := atomic.AddUint32(&h.idCounter, 1)
+	return strconv.AppendUint(nil, uint64(id), 10)
 }

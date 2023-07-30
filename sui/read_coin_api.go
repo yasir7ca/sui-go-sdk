@@ -5,10 +5,7 @@ package sui
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 
-	"github.com/tidwall/gjson"
 	"github.com/yasir7ca/sui-go-sdk/common/httpconn"
 	"github.com/yasir7ca/sui-go-sdk/models"
 )
@@ -29,7 +26,7 @@ type suiReadCoinFromSuiImpl struct {
 // SuiXGetBalance implements the method `suix_getBalance`, gets the total Coin balance for each coin type owned by an address.
 func (s *suiReadCoinFromSuiImpl) SuiXGetBalance(ctx context.Context, req models.SuiXGetBalanceRequest) (models.CoinBalanceResponse, error) {
 	var rsp models.CoinBalanceResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_getBalance",
 		Params: []interface{}{
 			req.Owner,
@@ -39,32 +36,18 @@ func (s *suiReadCoinFromSuiImpl) SuiXGetBalance(ctx context.Context, req models.
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // SuiXGetAllBalance implements the method `suix_getAllBalances`, gets all Coin balances owned by an address.
 func (s *suiReadCoinFromSuiImpl) SuiXGetAllBalance(ctx context.Context, req models.SuiXGetAllBalanceRequest) (models.CoinAllBalanceResponse, error) {
 	var rsp models.CoinAllBalanceResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_getAllBalances",
 		Params: []interface{}{
 			req.Owner,
 		},
 	})
-	if err != nil {
-		return rsp, err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
 	if err != nil {
 		return rsp, err
 	}
@@ -77,7 +60,7 @@ func (s *suiReadCoinFromSuiImpl) SuiXGetCoins(ctx context.Context, req models.Su
 	if err := validate.ValidateStruct(req); err != nil {
 		return rsp, err
 	}
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_getCoins",
 		Params: []interface{}{
 			req.Owner,
@@ -86,13 +69,6 @@ func (s *suiReadCoinFromSuiImpl) SuiXGetCoins(ctx context.Context, req models.Su
 			req.Limit,
 		},
 	})
-	if err != nil {
-		return rsp, err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
 	if err != nil {
 		return rsp, err
 	}
@@ -105,7 +81,7 @@ func (s *suiReadCoinFromSuiImpl) SuiXGetAllCoins(ctx context.Context, req models
 	if err := validate.ValidateStruct(req); err != nil {
 		return rsp, err
 	}
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_getAllCoins",
 		Params: []interface{}{
 			req.Owner,
@@ -116,32 +92,18 @@ func (s *suiReadCoinFromSuiImpl) SuiXGetAllCoins(ctx context.Context, req models
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // SuiXGetCoinMetadata implements the method `suix_getCoinMetadata`, gets metadata(e.g., symbol, decimals) for a coin.
 func (s *suiReadCoinFromSuiImpl) SuiXGetCoinMetadata(ctx context.Context, req models.SuiXGetCoinMetadataRequest) (models.CoinMetadataResponse, error) {
 	var rsp models.CoinMetadataResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_getCoinMetadata",
 		Params: []interface{}{
 			req.CoinType,
 		},
 	})
-	if err != nil {
-		return rsp, err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
 	if err != nil {
 		return rsp, err
 	}
@@ -151,19 +113,12 @@ func (s *suiReadCoinFromSuiImpl) SuiXGetCoinMetadata(ctx context.Context, req mo
 // SuiXGetTotalSupply implements the method `suix_getTotalSupply`, gets total supply for a coin
 func (s *suiReadCoinFromSuiImpl) SuiXGetTotalSupply(ctx context.Context, req models.SuiXGetTotalSupplyRequest) (models.TotalSupplyResponse, error) {
 	var rsp models.TotalSupplyResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_getTotalSupply",
 		Params: []interface{}{
 			req.CoinType,
 		},
 	})
-	if err != nil {
-		return rsp, err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
 	if err != nil {
 		return rsp, err
 	}

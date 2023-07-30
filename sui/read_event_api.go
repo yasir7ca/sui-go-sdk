@@ -5,10 +5,7 @@ package sui
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 
-	"github.com/tidwall/gjson"
 	"github.com/yasir7ca/sui-go-sdk/common/httpconn"
 	"github.com/yasir7ca/sui-go-sdk/models"
 )
@@ -25,19 +22,12 @@ type suiReadEventFromSuiImpl struct {
 // SuiGetEvents implements the method `sui_getEvents`, gets transaction events.
 func (s *suiReadEventFromSuiImpl) SuiGetEvents(ctx context.Context, req models.SuiGetEventsRequest) (models.GetEventsResponse, error) {
 	var rsp models.GetEventsResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "sui_getEvents",
 		Params: []interface{}{
 			req.Digest,
 		},
 	})
-	if err != nil {
-		return rsp, err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
 	if err != nil {
 		return rsp, err
 	}
@@ -50,7 +40,7 @@ func (s *suiReadEventFromSuiImpl) SuiXQueryEvents(ctx context.Context, req model
 	if err := validate.ValidateStruct(req); err != nil {
 		return rsp, err
 	}
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "suix_queryEvents",
 		Params: []interface{}{
 			req.SuiEventFilter,
@@ -59,13 +49,6 @@ func (s *suiReadEventFromSuiImpl) SuiXQueryEvents(ctx context.Context, req model
 			req.DescendingOrder,
 		},
 	})
-	if err != nil {
-		return rsp, err
-	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
 	if err != nil {
 		return rsp, err
 	}

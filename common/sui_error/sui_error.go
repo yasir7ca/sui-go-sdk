@@ -10,3 +10,9 @@ var (
 	ErrAddressNotInKeyStore   = errors.New("address not in keystore, make sure already loaded sui.keystore")
 	ErrInvalidAddress         = errors.New("invalid address")
 )
+
+type HTTPError struct {
+	StatusCode int
+	Status     string
+	Body       []byte
+}
