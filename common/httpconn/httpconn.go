@@ -71,7 +71,7 @@ func (h *HttpConn) CallContext(ctx context.Context, result interface{}, op Opera
 	if result != nil && reflect.TypeOf(result).Kind() != reflect.Ptr {
 		return fmt.Errorf("call result parameter must be pointer or nil interface: %v", result)
 	}
-	msg, err := h.newMessage(op.Method, op.Params)
+	msg, err := h.newMessage(op.Method, op.Params...)
 	if err != nil {
 		return err
 	}
