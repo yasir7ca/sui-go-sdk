@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/block-vision/sui-go-sdk/models"
+	"github.com/yasir7ca/sui-go-sdk/models"
 	"golang.org/x/time/rate"
 )
 

@@ -3,8 +3,9 @@ package signer
 import (
 	"crypto/ed25519"
 	"encoding/hex"
-	"github.com/block-vision/sui-go-sdk/common/keypair"
+
 	"github.com/tyler-smith/go-bip39"
+	"github.com/yasir7ca/sui-go-sdk/common/keypair"
 	"golang.org/x/crypto/blake2b"
 )
 

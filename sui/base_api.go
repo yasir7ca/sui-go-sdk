@@ -6,8 +6,9 @@ package sui
 import (
 	"context"
 	"errors"
-	"github.com/block-vision/sui-go-sdk/common/httpconn"
+
 	"github.com/tidwall/gjson"
+	"github.com/yasir7ca/sui-go-sdk/common/httpconn"
 )
 
 type IBaseAPI interface {

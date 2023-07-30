@@ -2,7 +2,8 @@ package models
 
 import (
 	"crypto/ed25519"
-	"github.com/block-vision/sui-go-sdk/models/sui_types"
+
+	"github.com/yasir7ca/sui-go-sdk/models/sui_types"
 )
 
 type MoveCallRequest struct {

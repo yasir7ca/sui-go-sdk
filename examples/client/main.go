@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"github.com/block-vision/sui-go-sdk/constant"
-	"github.com/block-vision/sui-go-sdk/models"
-	"github.com/block-vision/sui-go-sdk/sui"
-	"github.com/block-vision/sui-go-sdk/utils"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/yasir7ca/sui-go-sdk/constant"
+	"github.com/yasir7ca/sui-go-sdk/models"
+	"github.com/yasir7ca/sui-go-sdk/sui"
+	"github.com/yasir7ca/sui-go-sdk/utils"
 )
 
 func main() {

@@ -4,7 +4,7 @@
 package sui
 
 import (
-	"github.com/block-vision/sui-go-sdk/common/wsconn"
+	"github.com/yasir7ca/sui-go-sdk/common/wsconn"
 )
 
 // ISuiWebsocketAPI defines the subscription API related interface, and then implement it by the WebsocketClient.

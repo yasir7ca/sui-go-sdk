@@ -1,6 +1,6 @@
 package models
 
-import "github.com/block-vision/sui-go-sdk/models/sui_json_rpc_types"
+import "github.com/yasir7ca/sui-go-sdk/models/sui_json_rpc_types"
 
 type GetMoveFunctionArgTypesRequest struct {
 	Package  string
@@ -15,7 +15,6 @@ type GetNormalizedMoveModulesByPackageRequest struct {
 }
 
 type GetNormalizedMoveModulesByPackageResponse map[string]sui_json_rpc_types.SuiMoveNormalizedModule
-
 
 type GetNormalizedMoveModuleRequest struct {
 	Package    string `json:"package"`
