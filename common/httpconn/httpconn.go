@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/block-vision/sui-go-sdk/models"
 	"io/ioutil"
 	"net/http"
 	"time"
 
+	"github.com/block-vision/sui-go-sdk/models"
 	"golang.org/x/time/rate"
 )
 
-const defaultTimeout = time.Second * 5
+const defaultTimeout = time.Second * 20
 
 type HttpConn struct {
 	c       *http.Client
