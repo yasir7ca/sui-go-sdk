@@ -5,9 +5,7 @@ package sui
 
 import (
 	"context"
-	"errors"
 
-	"github.com/tidwall/gjson"
 	"github.com/yasir7ca/sui-go-sdk/common/httpconn"
 )
 
@@ -21,15 +19,13 @@ type suiBaseImpl struct {
 
 // SuiCall send customized request to Sui Node endpoint.
 func (s *suiBaseImpl) SuiCall(ctx context.Context, method string, params ...interface{}) (interface{}, error) {
-	resp, err := s.conn.Request(ctx, httpconn.Operation{
+	var resp interface{}
+	err := s.conn.CallContext(ctx, &resp, httpconn.Operation{
 		Method: method,
 		Params: params,
 	})
 	if err != nil {
 		return nil, err
 	}
-	if gjson.ParseBytes(resp).Get("error").Exists() {
-		return nil, errors.New(gjson.ParseBytes(resp).Get("error").String())
-	}
-	return gjson.ParseBytes(resp).String(), nil
+	return resp, nil
 }

@@ -7,6 +7,13 @@ import (
 
 var null = json.RawMessage("null")
 
+type JsonRPCRequest struct {
+	JsonRPC string        `json:"jsonrpc"`
+	ID      interface{}   `json:"id"`
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+}
+
 // JsonRPCMessage value of this type can a JSON-RPC request, notification, successful response or
 // error response. Which one it is depends on the fields.
 type JsonRPCMessage struct {

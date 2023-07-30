@@ -5,10 +5,7 @@ package sui
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 
-	"github.com/tidwall/gjson"
 	"github.com/yasir7ca/sui-go-sdk/common/httpconn"
 	"github.com/yasir7ca/sui-go-sdk/models"
 )
@@ -38,7 +35,7 @@ type suiWriteTransactionImpl struct {
 // SuiExecuteTransactionBlock implements the method `sui_executeTransactionBlock`, executes a transaction using the transaction data and signature(s).
 func (s *suiWriteTransactionImpl) SuiExecuteTransactionBlock(ctx context.Context, req models.SuiExecuteTransactionBlockRequest) (models.SuiTransactionBlockResponse, error) {
 	var rsp models.SuiTransactionBlockResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "sui_executeTransactionBlock",
 		Params: []interface{}{
 			req.TxBytes,
@@ -50,20 +47,13 @@ func (s *suiWriteTransactionImpl) SuiExecuteTransactionBlock(ctx context.Context
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // MoveCall implements the method `unsafe_moveCall`, creates an unsigned transaction to execute a Move call on the network, by calling the specified function in the module of a given package.
 func (s *suiWriteTransactionImpl) MoveCall(ctx context.Context, req models.MoveCallRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_moveCall",
 		Params: []interface{}{
 			req.Signer,
@@ -79,20 +69,13 @@ func (s *suiWriteTransactionImpl) MoveCall(ctx context.Context, req models.MoveC
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // MergeCoins implements the method `unsafe_mergeCoins`, creates an unsigned transaction to merge multiple coins into one coin.
 func (s *suiWriteTransactionImpl) MergeCoins(ctx context.Context, req models.MergeCoinsRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_mergeCoins",
 		Params: []interface{}{
 			req.Signer,
@@ -105,20 +88,13 @@ func (s *suiWriteTransactionImpl) MergeCoins(ctx context.Context, req models.Mer
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // SplitCoin implements the method `unsafe_splitCoin`, creates an unsigned transaction to split a coin object into multiple coins.
 func (s *suiWriteTransactionImpl) SplitCoin(ctx context.Context, req models.SplitCoinRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_splitCoin",
 		Params: []interface{}{
 			req.Signer,
@@ -131,20 +107,13 @@ func (s *suiWriteTransactionImpl) SplitCoin(ctx context.Context, req models.Spli
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // SplitCoinEqual implements the method `unsafe_splitCoinEqual`, creates an unsigned transaction to split a coin object into multiple equal-size coins.
 func (s *suiWriteTransactionImpl) SplitCoinEqual(ctx context.Context, req models.SplitCoinEqualRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_splitCoinEqual",
 		Params: []interface{}{
 			req.Signer,
@@ -157,20 +126,13 @@ func (s *suiWriteTransactionImpl) SplitCoinEqual(ctx context.Context, req models
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // Publish implements the method `unsafe_publish`, creates an unsigned transaction to publish a Move package.
 func (s *suiWriteTransactionImpl) Publish(ctx context.Context, req models.PublishRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_publish",
 		Params: []interface{}{
 			req.Sender,
@@ -183,20 +145,13 @@ func (s *suiWriteTransactionImpl) Publish(ctx context.Context, req models.Publis
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
 	return rsp, nil
 }
 
 // TransferObject implements the method `unsafe_transferObject`, creates an unsigned transaction to transfer an object from one address to another. The object's type must allow public transfers.
 func (s *suiWriteTransactionImpl) TransferObject(ctx context.Context, req models.TransferObjectRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_transferObject",
 		Params: []interface{}{
 			req.Signer,
@@ -209,20 +164,14 @@ func (s *suiWriteTransactionImpl) TransferObject(ctx context.Context, req models
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
 // TransferSui implements the method `unsafe_transferSui`, creates an unsigned transaction to send SUI coin object to a Sui address. The SUI object is also used as the gas object.
 func (s *suiWriteTransactionImpl) TransferSui(ctx context.Context, req models.TransferSuiRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_transferSui",
 		Params: []interface{}{
 			req.Signer,
@@ -235,13 +184,7 @@ func (s *suiWriteTransactionImpl) TransferSui(ctx context.Context, req models.Tr
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
@@ -250,7 +193,7 @@ func (s *suiWriteTransactionImpl) TransferSui(ctx context.Context, req models.Tr
 // The gas object can not appear in `input_coins`. If the gas object is not specified, the RPC server will auto-select one.
 func (s *suiWriteTransactionImpl) Pay(ctx context.Context, req models.PayRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_pay",
 		Params: []interface{}{
 			req.Signer,
@@ -264,13 +207,7 @@ func (s *suiWriteTransactionImpl) Pay(ctx context.Context, req models.PayRequest
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
@@ -283,7 +220,7 @@ func (s *suiWriteTransactionImpl) Pay(ctx context.Context, req models.PayRequest
 // 4. all other input coints other than the first one are deleted.
 func (s *suiWriteTransactionImpl) PaySui(ctx context.Context, req models.PaySuiRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_paySui",
 		Params: []interface{}{
 			req.Signer,
@@ -296,13 +233,7 @@ func (s *suiWriteTransactionImpl) PaySui(ctx context.Context, req models.PaySuiR
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
@@ -315,7 +246,7 @@ func (s *suiWriteTransactionImpl) PaySui(ctx context.Context, req models.PaySuiR
 // 4. all other input coins other than the first are deleted.
 func (s *suiWriteTransactionImpl) PayAllSui(ctx context.Context, req models.PayAllSuiRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_payAllSui",
 		Params: []interface{}{
 			req.Signer,
@@ -327,20 +258,14 @@ func (s *suiWriteTransactionImpl) PayAllSui(ctx context.Context, req models.PayA
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
 // RequestAddStake implements the method `unsafe_requestAddStake`, add stake to a validator's staking pool using multiple coins and amount.
 func (s *suiWriteTransactionImpl) RequestAddStake(ctx context.Context, req models.AddStakeRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_requestAddStake",
 		Params: []interface{}{
 			req.Signer,
@@ -354,20 +279,14 @@ func (s *suiWriteTransactionImpl) RequestAddStake(ctx context.Context, req model
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
 // RequestWithdrawStake implements the method `unsafe_requestWithdrawStake`, withdraw stake from a validator's staking pool.
 func (s *suiWriteTransactionImpl) RequestWithdrawStake(ctx context.Context, req models.WithdrawStakeRequest) (models.TxnMetaData, error) {
 	var rsp models.TxnMetaData
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_requestWithdrawStake",
 		Params: []interface{}{
 			req.Signer,
@@ -379,20 +298,14 @@ func (s *suiWriteTransactionImpl) RequestWithdrawStake(ctx context.Context, req 
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
 // BatchTransaction implements the method `unsafe_batchTransaction`, creates an unsigned batched transaction.
 func (s *suiWriteTransactionImpl) BatchTransaction(ctx context.Context, req models.BatchTransactionRequest) (models.BatchTransactionResponse, error) {
 	var rsp models.BatchTransactionResponse
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "unsafe_batchTransaction",
 		Params: []interface{}{
 			req.Signer,
@@ -405,13 +318,7 @@ func (s *suiWriteTransactionImpl) BatchTransaction(ctx context.Context, req mode
 	if err != nil {
 		return rsp, err
 	}
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
+
 	return rsp, nil
 }
 
@@ -421,7 +328,7 @@ func (s *suiWriteTransactionImpl) SignAndExecuteTransactionBlock(ctx context.Con
 
 	signedTxn := req.TxnMetaData.SignSerializedSigWith(req.PriKey)
 
-	respBytes, err := s.conn.Request(ctx, httpconn.Operation{
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
 		Method: "sui_executeTransactionBlock",
 		Params: []interface{}{
 			signedTxn.TxBytes,
@@ -434,15 +341,5 @@ func (s *suiWriteTransactionImpl) SignAndExecuteTransactionBlock(ctx context.Con
 	if err != nil {
 		return rsp, err
 	}
-
-	if gjson.ParseBytes(respBytes).Get("error").Exists() {
-		return rsp, errors.New(gjson.ParseBytes(respBytes).Get("error").String())
-	}
-
-	err = json.Unmarshal([]byte(gjson.ParseBytes(respBytes).Get("result").String()), &rsp)
-	if err != nil {
-		return rsp, err
-	}
-
 	return rsp, nil
 }

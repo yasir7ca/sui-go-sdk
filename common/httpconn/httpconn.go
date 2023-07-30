@@ -44,7 +44,7 @@ type HttpConn struct {
 	client    *http.Client
 }
 
-func Dial(rpcUrl string) (client *HttpConn, err error) {
+func Dial(rpcUrl string) *HttpConn {
 	hc := &http.Client{
 		Transport: &http.Transport{
 			MaxIdleConns:    3,
@@ -55,12 +55,11 @@ func Dial(rpcUrl string) (client *HttpConn, err error) {
 	return DialWithClient(rpcUrl, hc)
 }
 
-func DialWithClient(rpcUrl string, c *http.Client) (client *HttpConn, err error) {
-	client = &HttpConn{
+func DialWithClient(rpcUrl string, c *http.Client) *HttpConn {
+	return &HttpConn{
 		rpcUrl: strings.TrimRight(rpcUrl, "/"),
 		client: c,
 	}
-	return
 }
 
 // CallContext performs a JSON-RPC call with the given arguments. If the context is

@@ -37,13 +37,13 @@ type Client struct {
 
 // NewSuiClient instantiates the Sui client to call the methods of each module.
 func NewSuiClient(rpcUrl string) ISuiAPI {
-	conn := httpconn.NewHttpConn(rpcUrl)
+	conn := httpconn.Dial(rpcUrl)
 	return newClient(conn)
 }
 
 // NewSuiClientWithCustomClient custom HTTP client, instantiates the Sui client to call the methods of each module.
 func NewSuiClientWithCustomClient(rpcUrl string, c *http.Client) ISuiAPI {
-	conn := httpconn.NewCustomHttpConn(rpcUrl, c)
+	conn := httpconn.DialWithClient(rpcUrl, c)
 	return newClient(conn)
 }
 
