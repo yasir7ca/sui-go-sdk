@@ -3,6 +3,7 @@ package models
 import (
 	"crypto/ed25519"
 
+	"github.com/aws/aws-sdk-go/service/kms"
 	"github.com/yasir7ca/sui-go-sdk/models/sui_types"
 )
 
@@ -202,6 +203,16 @@ type SignAndExecuteTransactionBlockRequest struct {
 	// the address private key to sign the transaction
 	PriKey  ed25519.PrivateKey
 	Options SuiTransactionBlockOptions `json:"options"`
+	// The optional enumeration values are: `WaitForEffectsCert`, or `WaitForLocalExecution`
+	RequestType string `json:"requestType"`
+}
+
+type SignAndExecuteTransactionBlockRequestWithKMS struct {
+	TxnMetaData TxnMetaData
+	KeyId       string
+	Kms         *kms.KMS
+	PublicKey   []byte
+	Options     SuiTransactionBlockOptions `json:"options"`
 	// The optional enumeration values are: `WaitForEffectsCert`, or `WaitForLocalExecution`
 	RequestType string `json:"requestType"`
 }
