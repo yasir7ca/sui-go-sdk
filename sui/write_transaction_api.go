@@ -26,6 +26,7 @@ type IWriteTransactionAPI interface {
 	RequestWithdrawStake(ctx context.Context, req models.WithdrawStakeRequest) (models.TxnMetaData, error)
 	BatchTransaction(ctx context.Context, req models.BatchTransactionRequest) (models.BatchTransactionResponse, error)
 	SignAndExecuteTransactionBlock(ctx context.Context, req models.SignAndExecuteTransactionBlockRequest) (models.SuiTransactionBlockResponse, error)
+	SignAndExecuteTransactionBlockWithKMS(ctx context.Context, req models.SignAndExecuteTransactionBlockRequestWithKMS) (models.SuiTransactionBlockResponse, error)
 }
 
 type suiWriteTransactionImpl struct {
@@ -333,6 +334,31 @@ func (s *suiWriteTransactionImpl) SignAndExecuteTransactionBlock(ctx context.Con
 		Params: []interface{}{
 			signedTxn.TxBytes,
 			[]string{signedTxn.Signature},
+			req.Options,
+			req.RequestType,
+		},
+	})
+
+	if err != nil {
+		return rsp, err
+	}
+	return rsp, nil
+}
+
+// SignAndExecuteTransactionBlock sign a transaction block and submit to the Fullnode for execution.
+func (s *suiWriteTransactionImpl) SignAndExecuteTransactionBlockWithKMS(ctx context.Context, req models.SignAndExecuteTransactionBlockRequestWithKMS) (models.SuiTransactionBlockResponse, error) {
+	var rsp models.SuiTransactionBlockResponse
+
+	signature, err_kms := req.TxnMetaData.SignSerializedSigWithKMS(req.KeyId, req.Kms, req.PublicKey)
+	if err_kms != nil {
+		return rsp, nil // returnn proper error here
+	}
+
+	err := s.conn.CallContext(ctx, &rsp, httpconn.Operation{
+		Method: "sui_executeTransactionBlock",
+		Params: []interface{}{
+			req.TxnMetaData.TxBytes,
+			[]string{signature},
 			req.Options,
 			req.RequestType,
 		},
