@@ -159,9 +159,18 @@ func (txn *TxnMetaData) SignSerializedSigWithKMS(keyId string, svc *kms.KMS, pub
 	}
 	sBytes := sigAsn1.S.Bytes
 
+	CURVE_ORDER := new(big.Int)
+	CURVE_ORDER.SetString("115792089237316195423570985008687907852837564279074904382605163141518161494337", 10)
+	// Define HALF as half of CURVE_ORDER
+	HALF := new(big.Int).Rsh(CURVE_ORDER, 1)
+
 	sBigInt := new(big.Int).SetBytes(sBytes)
-	if sBigInt.Cmp(secp256k1HalfN) > 0 {
-		sBytes = new(big.Int).Sub(secp256k1N, sBigInt).Bytes()
+
+	if sBigInt.Cmp(HALF) > 0 {
+		minusS := new(big.Int).Neg(sBigInt)
+		sBytes = new(big.Int).Mod(minusS, CURVE_ORDER).Bytes()
+
+
 	}
 
 	signature := append(sigAsn1.R.Bytes[1:], sBytes...)
