@@ -47,6 +47,7 @@ type AwsSigner struct {
 	PublicKeyStr    string
 	PublicKeyBase64 string
 	Address         string
+	KmsId           string
 }
 
 type ECDSAPubKeyAlgorithm struct {
@@ -101,12 +102,10 @@ func NewSignertWithMnemonic(mnemonic string) (*Signer, error) {
 	return NewSigner(key.Key), nil
 }
 
-func GetAwsSigner(KeyId string) (*AwsSigner, error) {
+func GetAwsSigner(KeyId string, Region string) (*AwsSigner, error) {
 
 	config := aws.NewConfig()
-	region := "ap-northeast-1"
-
-	config.Region = &region
+	config.Region = &Region
 
 	session, sessionErr := session.NewSession(config)
 
@@ -160,7 +159,7 @@ func GetAwsSigner(KeyId string) (*AwsSigner, error) {
 	publicKeyBase64 := base64.StdEncoding.EncodeToString(compressedPubkey)
 
 	signer := AwsSigner{KmsService: kmsSvc, Address: addr, PublicKey: compressedPubkey, PublicKeyStr: publicKeyStr,
-		PublicKeyBase64: publicKeyBase64,
+		PublicKeyBase64: publicKeyBase64, KmsId: KeyId,
 	}
 
 	return &signer, nil

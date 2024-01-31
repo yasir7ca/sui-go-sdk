@@ -15,7 +15,7 @@ var cli = sui.NewSuiClient(constant.SuiPublicTestnet)
 
 func main() {
 
-	kmsSigner, err := signer.GetAwsSigner("alias/autodeleverager-service")
+	kmsSigner, err := signer.GetAwsSigner("alias/autodeleverager-service", "ap-northeast-1")
 	fmt.Println(kmsSigner.KmsService, err)
 	fmt.Println(kmsSigner.Address)
 
