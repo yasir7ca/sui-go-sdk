@@ -170,6 +170,7 @@ func (txn *TxnMetaData) SignSerializedSigWithKMS(keyId string, svc *kms.KMS, pub
 		minusS := new(big.Int).Neg(sBigInt)
 		sBytes = new(big.Int).Mod(minusS, CURVE_ORDER).Bytes()
 
+
 	}
 
 	signature := append(sigAsn1.R.Bytes[1:], sBytes...)
